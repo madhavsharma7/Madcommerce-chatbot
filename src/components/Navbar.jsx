@@ -1,6 +1,6 @@
 import { Search, ShoppingCart, Menu, X, ChevronDown, LogOut, User } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -14,8 +14,20 @@ const categories = [
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const navigate = useNavigate();
   const { cartCount, setIsCartOpen } = useCart();
   const { user, logout } = useAuth();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate("/");
+    }
+  };
 
 
   return (
@@ -27,14 +39,18 @@ const Navbar = () => {
 
         {/* Desktop Search */}
         <div className="hidden md:flex flex-1 max-w-md mx-8">
-          <div className="relative w-full">
+          <form onSubmit={handleSearch} className="relative w-full">
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products..."
               className="w-full rounded-lg border-0 bg-navbar-foreground/10 px-4 py-2 text-sm text-navbar-foreground placeholder:text-navbar-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
             />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navbar-foreground/50" />
-          </div>
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Search className="h-4 w-4 text-navbar-foreground/50 hover:text-primary transition-colors" />
+            </button>
+          </form>
         </div>
 
         {/* Desktop Nav */}
@@ -114,14 +130,18 @@ const Navbar = () => {
       <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out border-t border-navbar-foreground/10 ${menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}>
         <div className="px-4 py-6 space-y-4 bg-navbar">
-          <div className="relative">
+          <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products..."
               className="w-full rounded-lg bg-navbar-foreground/10 px-4 py-2.5 text-sm placeholder:text-navbar-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary"
             />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navbar-foreground/50" />
-          </div>
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Search className="h-4 w-4 text-navbar-foreground/50 hover:text-primary transition-colors" />
+            </button>
+          </form>
           <div className="grid grid-cols-1 gap-1">
             <Link to="/" onClick={() => setMenuOpen(false)} className="py-2.5 px-2 hover:bg-white/5 rounded-lg transition-colors text-lg font-medium">Home</Link>
             <div className="py-1">

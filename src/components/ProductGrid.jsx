@@ -12,15 +12,25 @@ const fetchProducts = async () => {
 const ProductGrid = () => {
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category");
+  const searchQuery = searchParams.get("search");
 
   const { data: products, isLoading, error } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
   });
 
-  const filteredProducts = category
-    ? products?.filter((p) => p.category === category)
-    : products;
+  // Filter by category first, then by search query
+  let filteredProducts = products;
+
+  if (category) {
+    filteredProducts = filteredProducts?.filter((p) => p.category === category);
+  }
+
+  if (searchQuery) {
+    filteredProducts = filteredProducts?.filter((p) =>
+      p.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
 
   if (isLoading) {
     return (
@@ -38,10 +48,22 @@ const ProductGrid = () => {
     );
   }
 
+  // Dynamic heading based on filters
+  const getHeading = () => {
+    if (searchQuery && category) {
+      return `Search results for "${searchQuery}" in ${category.replace("'", "")}`;
+    } else if (searchQuery) {
+      return `Search results for "${searchQuery}"`;
+    } else if (category) {
+      return category.replace("'", "");
+    }
+    return "All Products";
+  };
+
   return (
     <section className="container mx-auto px-4 py-12" id="products">
       <h2 className="font-display text-3xl font-bold text-foreground mb-8 capitalize">
-        {category ? `${category.replace("'", "")}` : "All Products"}
+        {getHeading()}
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
         {filteredProducts?.map((product) => (
