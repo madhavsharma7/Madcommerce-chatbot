@@ -54,8 +54,12 @@ const Checkout = () => {
         };
 
         try {
-            // For now, let's simulate the success after a delay
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await emailjs.send(
+                "service_6295e7s",
+                "template_ua27tuh",
+                templateParams,
+                "ze1-SY3Aypt5Y3dFO"
+            );
 
             setIsSuccess(true);
             setTimeout(() => {
